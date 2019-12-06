@@ -217,7 +217,7 @@ class condGANTrainer(object):
             im.save(fullpath)
 
     def train(self):
-        writer = SummaryWriter()
+        writer = SummaryWriter('runs/baseline')
         text_encoder, image_encoder, netG, netsD, start_epoch = self.build_models()
         avg_param_G = copy_G_params(netG)
         optimizerG, optimizersD = self.define_optimizers(netG, netsD)
@@ -272,9 +272,7 @@ class condGANTrainer(object):
                     netsD[i].zero_grad()
                     errD = discriminator_loss(netsD[i], imgs[i], fake_imgs[i],
                                               sent_emb, real_labels, fake_labels)
-                    print(type(errD))
-                    print(type(errD.data))
-                    print(type(errD.data.item()))
+                    
                     # backward and update parameters
                     errD.backward()
                     optimizersD[i].step()
