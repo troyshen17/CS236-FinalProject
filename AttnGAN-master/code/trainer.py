@@ -27,7 +27,7 @@ import sys
 
 # ################# Text to image task############################ #
 class condGANTrainer(object):
-    def __init__(self, output_dir, data_loader, n_words, ixtoword):
+    def __init__(self, output_dir, data_loader, n_words, ixtoword, log_dir):
         if cfg.TRAIN.FLAG:
             self.model_dir = os.path.join(output_dir, 'Model')
             self.image_dir = os.path.join(output_dir, 'Image')
@@ -35,6 +35,7 @@ class condGANTrainer(object):
             mkdir_p(self.image_dir)
 
         torch.cuda.set_device(cfg.GPU_ID)
+        # torch.cuda.set_device(-1)
         cudnn.benchmark = True
 
         self.batch_size = cfg.TRAIN.BATCH_SIZE
@@ -45,6 +46,8 @@ class condGANTrainer(object):
         self.ixtoword = ixtoword
         self.data_loader = data_loader
         self.num_batches = len(self.data_loader)
+
+        self.writer = SummaryWriter(log_dir)
 
     def build_models(self):
         # ###################encoders######################################## #
@@ -123,6 +126,7 @@ class condGANTrainer(object):
                     netsD[i].load_state_dict(state_dict)
         # ########################################################### #
         if cfg.CUDA:
+            print("ahsudfihewuaeriug")
             text_encoder = text_encoder.cuda()
             image_encoder = image_encoder.cuda()
             netG.cuda()
@@ -280,7 +284,10 @@ class condGANTrainer(object):
                     optimizersD[i].step()
                     errD_total += errD
                     D_logs += 'errD%d: %.2f ' % (i, errD.data)
+
                     writer.add_scalar('data/errD%d' % i, errD.data.item(), gen_iterations)
+
+
                 #######################################################
                 # (4) Update G network: maximize log(D(G(z)))
                 ######################################################
@@ -347,7 +354,7 @@ class condGANTrainer(object):
             fullpath = '%s_%d.jpg' % (s_tmp, sentenceID)
             # range from [-1, 1] to [0, 1]
             # img = (images[i] + 1.0) / 2
-            img = images[i].add(1).div(2).mul(255).clamp(0, 255).byte()
+            img = images[i].add(1).div(2).mul(255).clamp(0, 255).bool()
             # range from [0, 1] to [0, 255]
             ndarr = img.permute(1, 2, 0).data.cpu().numpy()
             im = Image.fromarray(ndarr)
