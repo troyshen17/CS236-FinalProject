@@ -16,7 +16,7 @@ from miscc.utils import weights_init, load_params, copy_G_params
 from model import G_DCGAN, G_NET
 from datasets import prepare_data
 from model import RNN_ENCODER, CNN_ENCODER
-from tensorboardX import SummaryWriter
+#from tensorboardX import SummaryWriter
 
 from miscc.losses import words_loss
 from miscc.losses import discriminator_loss, generator_loss, KL_loss
@@ -47,7 +47,7 @@ class condGANTrainer(object):
         self.data_loader = data_loader
         self.num_batches = len(self.data_loader)
 
-        self.writer = SummaryWriter(log_dir)
+        #self.writer = SummaryWriter(log_dir)
 
     def build_models(self):
         # ###################encoders######################################## #
@@ -280,7 +280,7 @@ class condGANTrainer(object):
                     optimizersD[i].step()
                     errD_total += errD
                     D_logs += 'errD%d: %.2f ' % (i, errD.data)
-                    writer.add_scalar('data/err%d' % i, errD.data, gen_iterations)
+                    #writer.add_scalar('data/err%d' % i, errD.data, gen_iterations)
 
                 #######################################################
                 # (4) Update G network: maximize log(D(G(z)))
