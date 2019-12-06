@@ -35,6 +35,7 @@ class condGANTrainer(object):
             mkdir_p(self.image_dir)
 
         torch.cuda.set_device(cfg.GPU_ID)
+        # torch.cuda.set_device(-1)
         cudnn.benchmark = True
 
         self.batch_size = cfg.TRAIN.BATCH_SIZE
@@ -125,6 +126,7 @@ class condGANTrainer(object):
                     netsD[i].load_state_dict(state_dict)
         # ########################################################### #
         if cfg.CUDA:
+            print("ahsudfihewuaeriug")
             text_encoder = text_encoder.cuda()
             image_encoder = image_encoder.cuda()
             netG.cuda()

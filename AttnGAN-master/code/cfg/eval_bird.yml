@@ -2,10 +2,10 @@ CONFIG_NAME: 'attn2'
 
 DATASET_NAME: 'birds'
 DATA_DIR: '../data/birds'
-GPU_ID: 3
+GPU_ID: 0
 WORKERS: 1
 
-B_VALIDATION: False  # True  # False
+B_VALIDATION: True  # True  # False
 TREE:
     BRANCH_NUM: 3
 
