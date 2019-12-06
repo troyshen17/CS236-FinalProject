@@ -133,7 +133,8 @@ if __name__ == "__main__":
         drop_last=True, shuffle=bshuffle, num_workers=int(cfg.WORKERS))
 
     # Define models and go to train/evaluate
-    algo = trainer(output_dir, dataloader, dataset.n_words, dataset.ixtoword)
+    log_dir = time.strftime("%Y-%m-%d-%H-%M-%S")
+    algo = trainer(output_dir, dataloader, dataset.n_words, dataset.ixtoword, log_dir)
 
     start_t = time.time()
     if cfg.TRAIN.FLAG:
