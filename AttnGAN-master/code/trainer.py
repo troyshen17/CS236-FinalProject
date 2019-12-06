@@ -16,6 +16,7 @@ from miscc.utils import weights_init, load_params, copy_G_params
 from model import G_DCGAN, G_NET
 from datasets import prepare_data
 from model import RNN_ENCODER, CNN_ENCODER
+from tensorboardX import SummaryWriter
 
 from miscc.losses import words_loss
 from miscc.losses import discriminator_loss, generator_loss, KL_loss
@@ -216,6 +217,7 @@ class condGANTrainer(object):
             im.save(fullpath)
 
     def train(self):
+        writer = SummaryWriter()
         text_encoder, image_encoder, netG, netsD, start_epoch = self.build_models()
         avg_param_G = copy_G_params(netG)
         optimizerG, optimizersD = self.define_optimizers(netG, netsD)
@@ -270,12 +272,15 @@ class condGANTrainer(object):
                     netsD[i].zero_grad()
                     errD = discriminator_loss(netsD[i], imgs[i], fake_imgs[i],
                                               sent_emb, real_labels, fake_labels)
+                    print(type(errD))
+                    print(type(errD.data))
+                    print(type(errD.data.item()))
                     # backward and update parameters
                     errD.backward()
                     optimizersD[i].step()
                     errD_total += errD
                     D_logs += 'errD%d: %.2f ' % (i, errD.data)
-
+                    writer.add_scalar('data/errD%d' % i, errD.data.item(), gen_iterations)
                 #######################################################
                 # (4) Update G network: maximize log(D(G(z)))
                 ######################################################
@@ -327,7 +332,8 @@ class condGANTrainer(object):
                 self.save_model(netG, avg_param_G, netsD, epoch)
 
         self.save_model(netG, avg_param_G, netsD, self.max_epoch)
-
+        writer.export_scalars_to_json("./all_scalars.json")
+        writer.close()
     def save_singleimages(self, images, filenames, save_dir,
                           split_dir, sentenceID=0):
         for i in range(images.size(0)):
