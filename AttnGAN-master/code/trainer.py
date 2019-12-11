@@ -223,7 +223,7 @@ class condGANTrainer(object):
             im.save(fullpath)
 
     def train(self):
-        writer = SummaryWriter('runs/lambda')
+        writer = SummaryWriter('runs/architecture')
         text_encoder, image_encoder, netG, netsD, start_epoch = self.build_models()
         avg_param_G = copy_G_params(netG)
         optimizerG, optimizersD = self.define_optimizers(netG, netsD)
