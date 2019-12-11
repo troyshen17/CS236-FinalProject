@@ -35,6 +35,8 @@ class condGANTrainer(object):
             mkdir_p(self.image_dir)
 
         torch.cuda.set_device(cfg.GPU_ID)
+        #CUDA_VISIBLE_DEVICES = 0,1
+        print(cfg.GPU_ID)
         # torch.cuda.set_device(-1)
         cudnn.benchmark = True
 
@@ -221,7 +223,7 @@ class condGANTrainer(object):
             im.save(fullpath)
 
     def train(self):
-        writer = SummaryWriter('runs/baseline')
+        writer = SummaryWriter('runs/lambda')
         text_encoder, image_encoder, netG, netsD, start_epoch = self.build_models()
         avg_param_G = copy_G_params(netG)
         optimizerG, optimizersD = self.define_optimizers(netG, netsD)
@@ -237,6 +239,8 @@ class condGANTrainer(object):
         gen_iterations = 0
         # gen_iterations = start_epoch * self.num_batches
         for epoch in range(start_epoch, self.max_epoch):
+            print("=================================START TRAINING========================================")
+            print("++++++++++++++++++++++++++++++++++%d+++++++++++++++++++++++++++++++++++++++++++++++++++\n" % gen_iterations)
             start_t = time.time()
 
             data_iter = iter(self.data_loader)
@@ -260,13 +264,13 @@ class condGANTrainer(object):
                 num_words = words_embs.size(2)
                 if mask.size(1) > num_words:
                     mask = mask[:, :num_words]
-
+            
                 #######################################################
                 # (2) Generate fake images
                 ######################################################
                 noise.data.normal_(0, 1)
                 fake_imgs, _, mu, logvar = netG(noise, sent_emb, words_embs, mask)
-
+            
                 #######################################################
                 # (3) Update D network
                 ######################################################
@@ -285,7 +289,7 @@ class condGANTrainer(object):
 
                     writer.add_scalar('data/errD%d' % i, errD.data.item(), gen_iterations)
 
-
+                
                 #######################################################
                 # (4) Update G network: maximize log(D(G(z)))
                 ######################################################
@@ -324,8 +328,10 @@ class condGANTrainer(object):
                     #                       words_embs, mask, image_encoder,
                     #                       captions, cap_lens,
                     #                       epoch, name='current')
+        
             end_t = time.time()
-
+            writer.add_scalar('data/Loss_D', errD_total.data.item(), epoch)
+            writer.add_scalar('data/Loss_G', errG_total.data.item(), epoch)
             print('''[%d/%d][%d]
                   Loss_D: %.2f Loss_G: %.2f Time: %.2fs'''
                   % (epoch, self.max_epoch, self.num_batches,
