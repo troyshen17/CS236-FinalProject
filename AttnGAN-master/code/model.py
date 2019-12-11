@@ -230,7 +230,7 @@ class CNN_ENCODER(nn.Module):
         # 35 x 35 x 288
         x = self.Mixed_5d(x)
         # 35 x 35 x 288
-        x = self.Mixed_5c(x)
+        x = self.Mixed_5d(x)
         # 35 x 35 x 288
         x = self.Mixed_5d(x)
         # 35 x 35 x 288
